@@ -26,21 +26,25 @@ function loadFreshModule() {
 
 describe('extractSummary', () => {
   let mod;
+  let originalPlatform;
+
   beforeEach(() => {
+    originalPlatform = process.platform;
+    // Must set platform before loading module so isMacOS evaluates correctly
+    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
     mod = loadFreshModule();
   });
 
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+  });
+
   it('returns first non-empty line', () => {
-    // Access via run() by passing a message
     const fs2 = require('fs');
-    fs2.existsSync.mockReturnValue(false); // no multi-notify
+    fs2.existsSync.mockReturnValue(false); // no multi-notify, no terminal-notifier
     const spawnSync2 = require('child_process').spawnSync;
     const ideDetect = require('../src/lib/ide-detect');
     ideDetect.detectIDESync.mockReturnValue(null);
-
-    // We test extractSummary indirectly through run()
-    // by checking that spawnSync receives the truncated message
-    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
 
     mod.run(JSON.stringify({ last_assistant_message: '\n\nHello world\nSecond line' }));
     // osascript call includes the message
