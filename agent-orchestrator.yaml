@@ -1,0 +1,25 @@
+runtime: tmux
+agent: claude-code
+workspace: worktree
+agentRules: |-
+  Always run tests before pushing: npm test && npm run lint.
+  Use conventional commits (feat:, fix:, chore:, docs:, test:).
+  Write commit messages that explain WHY, not just WHAT.
+  Never commit directly to main. Every change lives on a branch.
+  Never merge a PR without explicit operator instruction.
+  Run npm test before every push — if tests fail, fix them before pushing.
+  The pre-commit hook enforces this; do not bypass it with --no-verify.
+  Write tests before or alongside implementation, never after.
+  Platform detection: isMacOS = process.platform === 'darwin', isWSL = linux + /proc/version contains 'microsoft'.
+  The bin/ directory is gitignored — never commit compiled Swift binary.
+  IDE detection logic lives in src/lib/ide-detect.js — import it, don't inline.
+
+reactions:
+  ci-failed:
+    auto: true
+    action: send-to-agent
+    retries: 3
+    escalateAfter: 3
+  changes-requested:
+    auto: true
+    action: send-to-agent

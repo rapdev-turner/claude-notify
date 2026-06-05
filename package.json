@@ -1,0 +1,22 @@
+{
+  "name": "claude-notify",
+  "version": "0.1.0",
+  "description": "Native desktop notifications for Claude Code with IDE-aware click-to-focus",
+  "main": "src/desktop-notify.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/ tests/",
+    "build": "swiftc src/multi-notify.swift -o bin/multi-notify",
+    "install-hook": "bash scripts/install.sh"
+  },
+  "keywords": ["claude-code", "claude", "notification", "macos", "hook"],
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "jest": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"]
+  }
+}
