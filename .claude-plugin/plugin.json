@@ -1,0 +1,8 @@
+{
+  "id": "claude-notify",
+  "name": "Claude Notify",
+  "description": "Native desktop notifications with IDE-aware click-to-focus",
+  "version": "0.1.0",
+  "hooks": [{ "event": "Stop", "command": "node src/desktop-notify.js" }],
+  "platforms": ["darwin", "win32", "linux"]
+}

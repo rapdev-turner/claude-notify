@@ -15,8 +15,10 @@
 
 'use strict';
 
+const path = require('path');
 const { spawnSync } = require('child_process');
-const { isMacOS, log } = require('../lib/utils');
+const { isMacOS, log } = require('./lib/utils');
+const { detectIDESync } = require('./lib/ide-detect');
 
 const MAX_BODY_LENGTH = 100;
 
@@ -109,12 +111,13 @@ function extractSummary(message) {
  * AppleScript strings do not support backslash escapes, so we replace
  * double quotes with curly quotes and strip backslashes before embedding.
  */
-const ICON_CLAUDE = `${process.env.HOME}/.claude/scripts/assets/notify-claude.png`;
-const ICON_AGENT  = `${process.env.HOME}/.claude/scripts/assets/notify-agent.png`;
+const PKG = path.join(__dirname, '..');
+const ICON_CLAUDE = path.join(PKG, 'assets', 'notify-claude.png');
+const ICON_AGENT  = path.join(PKG, 'assets', 'notify-agent.png');
 
 // multi-notify: custom Swift binary — shows overlay on every connected display.
 // Falls back to terminal-notifier, then plain osascript.
-const MULTI_NOTIFY      = `${process.env.HOME}/.claude/scripts/multi-notify`;
+const MULTI_NOTIFY      = path.join(PKG, 'bin', 'multi-notify');
 const TERMINAL_NOTIFIER = '/opt/homebrew/bin/terminal-notifier';
 
 function binaryAvailable(path) {
@@ -143,10 +146,15 @@ function notifyMacOS(title, subtitle, body) {
         : `http://localhost:${port}`;
       args.push('--url', url);
     } else {
-      args.push('--activate', 'com.jetbrains.pycharm');
-      // Pass cwd so PyCharm focuses the specific project window, not just the app.
-      const cwd = process.env.PWD || process.cwd();
-      if (cwd) args.push('--open-path', cwd);
+      const ide = detectIDESync();
+      if (ide === 'vscode') {
+        args.push('--activate', 'com.microsoft.VSCode');
+      } else if (ide === 'jetbrains') {
+        args.push('--activate', 'com.jetbrains.pycharm');
+        const cwd = process.env.PWD || process.cwd();
+        if (cwd) args.push('--open-path', cwd);
+      }
+      // if null: no activate args — just dismiss the notification
     }
 
     spawnSync(MULTI_NOTIFY, args, { stdio: 'ignore', timeout: 12000 });

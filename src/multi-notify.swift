@@ -119,6 +119,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // For PyCharm: call the focus-project plugin endpoint (silent HTTP call).
             // This raises the correct project window and opens its Terminal tool window.
             // Falls back to plain app activation if the plugin isn't installed.
+            if bundle == "com.microsoft.VSCode" {
+                if let url = URL(string: "vscode://anthropic.claude-code/open") {
+                    NSWorkspace.shared.open(url)
+                    quit()
+                    return
+                }
+            }
             if bundle == "com.jetbrains.pycharm", let openPath = config.openPath {
                 let encoded = openPath.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? openPath
                 if let url = URL(string: "http://localhost:63342/focus-project?path=\(encoded)") {
